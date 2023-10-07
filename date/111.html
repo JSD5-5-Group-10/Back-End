@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<label for="start-date">วันที่เริ่มต้น:</label>
+<input type="date" id="start-date" name="start-date" required min="">
+<br>
+<label for="end-date">วันที่สิ้นสุด:</label>
+<input type="date" id="end-date" name="end-date" required>
+<button onclick="calculateDays()">คำนวณจำนวนวัน</button>
+
+<p id="result"></p>
+
+<script>
+  function calculateDays() { 
+    let startDateInput = document.getElementById("start-date").value;
+    let endDateInput = document.getElementById("end-date").value;
+
+    let startDate = new Date(startDateInput);
+    let endDate = new Date(endDateInput);
+
+    let timeDiff = endDate - startDate;
+    let daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+    document.getElementById("result").innerHTML = "จำนวนวัน: " + daysDiff + " วัน";
+  }
+</script>
+
+</body>
+</html>
