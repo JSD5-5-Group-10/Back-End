@@ -1,0 +1,101 @@
+const MongosConnect = require("../database/Mongo.connect");
+const { v4: uuidv4 } = require("uuid");
+
+class Activity {
+  async getActivity(body) {
+    const connect = new MongosConnect();
+    const data = await connect.queryActivity(body ? body : {});
+    return {
+      data: data,
+      devMessage: "Success",
+    };
+  }
+  async addActivity(body) {
+    const connect = new MongosConnect();
+    if (
+      !/^(Training|KitaMuaythai|Run|Yoga|Aerobics)$/.test(body.act_type) ||
+      !body
+    ) {
+      return {
+        data: {},
+        statusCode : 400,
+        devMessage: "Request is incomplete",
+      };
+    }
+    // console.log(body)
+    const newActivity = {
+      act_id: uuidv4(),
+      act_type: body.act_type,
+      act_name: body.act_name || undefined,
+      act_desc: body.act_desc || undefined,
+      duration: parseInt(body.duration) || undefined,
+      cal_burn: parseFloat(body.cal_burn) || undefined,
+      kg_burn: parseFloat(body.kg_burn) || undefined,
+      cur_weight: parseFloat(body.cur_weight) || undefined,
+      created_at: new Date(Date.now()).toISOString(),
+      updated_at: new Date(Date.now()).toISOString(),
+    };
+
+    const data = await connect.updateOne(
+      { email: body.email },
+      {
+        $push: { activity: newActivity },
+      }
+    );
+
+    return {
+      data: data,
+      statusCode : 200,
+      devMessage: "Success",
+    };
+  }
+  async editActivity(body) {
+    const connect = new MongosConnect();
+    const updateField = {};
+    if (body.act_type) updateField["activity.$.act_type"] = body.act_type;
+    if (body.act_name) updateField["activity.$.act_name"] = body.act_name;
+    if (body.act_desc) updateField["activity.$.act_desc"] = body.act_desc;
+    if (body.duration) updateField["activity.$.duration"] = body.duration;
+    if (body.cal_burn) updateField["activity.$.cal_burn"] = body.cal_burn;
+    if (body.kg_burn) updateField["activity.$.kg_burn"] = body.kg_burn;
+    if (body.cur_weight) updateField["activity.$.cur_weight"] = body.cur_weight;
+    updateField["activity.$.updated_at"] = new Date(Date.now()).toISOString();
+
+    console.log("Update Field:", updateField);
+
+    const data = await connect.editActivity(
+      {
+        email: body.email,
+        "activity.act_id": body.act_id,
+      },
+      {
+        $set: updateField,
+      }
+    );
+
+    return {
+      data: data,
+      devMessage: "Success",
+    };
+  }
+  async delActivity(body) {
+    const connect = new MongosConnect();
+    const data = await connect.updateOne(
+      {
+        email: body.email,
+      },
+      {
+        $pull: {
+          activity: { act_id: body.act_id },
+        },
+      }
+    );
+    return {
+      data: data,
+      devMessage: "Success",
+    };
+  }
+
+}
+
+module.exports = Activity;
