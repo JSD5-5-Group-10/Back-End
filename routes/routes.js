@@ -4,10 +4,11 @@ const User = require("../controllers/User");
 const Activity = require("../controllers/Activity");
 const auth = require("../controllers/auth");
 
-router.get("/user", async (req, res) => {
+router.get("/user", auth, async (req, res) => {
+  const userId = req.user.id;
   try {
     const user = new User();
-    const result = await user.getUser(req.body);
+    const result = await user.getUser(userId, req.body);
     res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
@@ -38,9 +39,10 @@ router.post("/user/register", async (req, res) => {
 });
 
 router.put("/user/update", auth, async (req, res) => {
+  const userId = req.user.id;
   try {
     const editUser = new User();
-    const result = await editUser.updateUser(req.body);
+    const result = await editUser.updateUser(userId, req.body);
     res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
@@ -49,9 +51,10 @@ router.put("/user/update", auth, async (req, res) => {
 });
 
 router.delete("/user/delete", auth, async (req, res) => {
+  const userId = req.user.id;
   try {
     const disableUser = new User();
-    const result = await disableUser.disableUser(req.body);
+    const result = await disableUser.disableUser(userId,req.body);
     res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
@@ -60,9 +63,10 @@ router.delete("/user/delete", auth, async (req, res) => {
 });
 
 router.get("/activity", auth, async (req, res) => {
+  const userId = req.user.id;
   try {
     const user = new Activity();
-    const result = await user.getActivity(req.body);
+    const result = await user.getActivity({ email: userId });
     // console.log(result)
     res.json(result);
   } catch (error) {
@@ -72,10 +76,10 @@ router.get("/activity", auth, async (req, res) => {
 });
 
 router.post("/activity/add", auth, async (req, res) => {
-  console.log(auth)
+  const userId = req.user.id;
   try {
     const user = new Activity();
-    const result = await user.addActivity(req.body, req.header);
+    const result = await user.addActivity(userId,req.body);
     res.json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
@@ -84,9 +88,10 @@ router.post("/activity/add", auth, async (req, res) => {
 });
 
 router.put("/activity/update", auth, async (req, res) => {
+  const userId = req.user.id;
   try {
     const user = new Activity();
-    const result = await user.editActivity(req.body);
+    const result = await user.editActivity(userId,req.body);
     res.json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
@@ -95,9 +100,10 @@ router.put("/activity/update", auth, async (req, res) => {
 });
 
 router.delete("/activity/delete", auth, async (req, res) => {
+  const userId = req.user.id;
   try {
     const user = new Activity();
-    const result = await user.delActivity(req.body);
+    const result = await user.delActivity(userId,req.body);
     res.json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);

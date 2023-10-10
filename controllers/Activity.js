@@ -2,15 +2,15 @@ const MongosConnect = require("../database/Mongo.connect");
 const { v4: uuidv4 } = require("uuid");
 
 class Activity {
-  async getActivity(body) {
+  async getActivity(userId) {
     const connect = new MongosConnect();
-    const data = await connect.queryActivity(body ? body : {});
+    const data = await connect.queryActivity(userId);
     return {
       data: data,
       devMessage: "Success",
     };
   }
-  async addActivity(body) {
+  async addActivity(userId, body) {
     const connect = new MongosConnect();
     if (
       !/^(Training|KitaMuaythai|Run|Yoga|Aerobics)$/.test(body.act_type) ||
@@ -18,7 +18,7 @@ class Activity {
     ) {
       return {
         data: {},
-        statusCode : 400,
+        statusCode: 400,
         devMessage: "Request is incomplete",
       };
     }
@@ -37,7 +37,7 @@ class Activity {
     };
 
     const data = await connect.updateOne(
-      { email: body.email },
+      { email: userId },
       {
         $push: { activity: newActivity },
       }
@@ -45,11 +45,11 @@ class Activity {
 
     return {
       data: data,
-      statusCode : 200,
+      statusCode: 200,
       devMessage: "Success",
     };
   }
-  async editActivity(body) {
+  async editActivity(userId, body) {
     const connect = new MongosConnect();
     const updateField = {};
     if (body.act_type) updateField["activity.$.act_type"] = body.act_type;
@@ -65,7 +65,7 @@ class Activity {
 
     const data = await connect.editActivity(
       {
-        email: body.email,
+        email: userId,
         "activity.act_id": body.act_id,
       },
       {
@@ -78,11 +78,11 @@ class Activity {
       devMessage: "Success",
     };
   }
-  async delActivity(body) {
+  async delActivity(userId, body) {
     const connect = new MongosConnect();
     const data = await connect.updateOne(
       {
-        email: body.email,
+        email: userId,
       },
       {
         $pull: {
@@ -95,7 +95,6 @@ class Activity {
       devMessage: "Success",
     };
   }
-
 }
 
 module.exports = Activity;

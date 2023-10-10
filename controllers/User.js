@@ -3,10 +3,11 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 class User {
-  async getUser(body) {
+  async getUser(userId,body) {
+    console.log(userId)
     const connect = new MongosConnect();
     const userActive = {};
-    if (body.email) userActive.email = body.email;
+    if (userId) userActive.email = userId;
     userActive.is_active = true;
     console.log(userActive);
     const data = await connect.queryData(userActive);
@@ -50,8 +51,8 @@ class User {
         devMessage: "Invalid email or password",
       };
     }
-    const { email } = body.email;
-    // console.log(email)
+    const  email  = body.email;
+    console.log(email)
     function createJwt(email) {
       const jwtSecretKey = process.env.JWT_SECRET_KEY;
       const token = jwt.sign({ id: email }, jwtSecretKey, {
@@ -107,7 +108,7 @@ class User {
     };
   }
 
-  async updateUser(body) {
+  async updateUser(userId,body) {
     const connect = new MongosConnect();
 
     // const hashedPassword = bcrypt.hashSync(body.password, saltRounds);
@@ -129,7 +130,7 @@ class User {
     console.log(updatedField);
     const data = await connect.updateOne(
       {
-        email: body.email,
+        email: userId,
       },
       {
         $set: updatedField,
@@ -142,7 +143,7 @@ class User {
     };
   }
 
-  async disableUser(body) {
+  async disableUser(userId,body) {
     const connect = new MongosConnect();
     if (!/^(true|false)$/.test(body.is_active) || !body) {
       return {
@@ -155,7 +156,7 @@ class User {
     console.log(body.is_active);
     const data = await connect.updateOne(
       {
-        email: body.email,
+        email: userId,
       },
       {
         $set: { is_active: body.is_active },
