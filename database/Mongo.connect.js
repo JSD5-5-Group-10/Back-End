@@ -8,7 +8,12 @@ class MongosConnect {
     try {
       await client.connect();
       const selectDB = client.db("project");
-      const data = await selectDB.collection("database").find(option).limit(10).toArray();
+      const data = await selectDB
+        .collection("database")
+        .find(option)
+        .project({ activity: 0 })
+        .limit(10)
+        .toArray();
       return data;
     } catch (err) {
       console.log(err);
@@ -76,6 +81,25 @@ class MongosConnect {
         .collection("database")
         .updateMany(filter, options);
       return data;
+    } catch (err) {
+      console.log(err);
+      return null;
+    } finally {
+      client.close();
+    }
+  }
+  async groupBy(option) {
+    const client = new MongoClient(process.env.DATABASE_ENV || "");
+    try {
+      await client.connect();
+      const selectDB = client.db("project");
+      const data = selectDB.collection("database").aggregate(option);
+      const response = [];
+      await data.forEach((result) => {
+        response.push(result);
+      });
+      // console.log(response)
+      return response;
     } catch (err) {
       console.log(err);
       return null;

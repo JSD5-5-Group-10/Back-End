@@ -26,10 +26,13 @@ class User {
   }
 
   async loginUser(body) {
+    console.log(body)
     const connect = new MongosConnect();
     const userActive = {};
     if (body.email) userActive.email = body.email;
     if (body.password) userActive.is_active = true;
+
+    console.log(userActive)
 
     const data = await connect.queryData(userActive);
     const password = data.map((pw) => pw.password);
@@ -100,9 +103,9 @@ class User {
       updated_at: new Date(Date.now()).toISOString(),
     };
     // console.log(newUser);
-    const data = await connect.insertOneData(newUser);
+    await connect.insertOneData(newUser);
     return {
-      data: data,
+      data: {},
       statusCode: 200,
       devMessage: "Success",
     };
