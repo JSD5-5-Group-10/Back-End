@@ -147,4 +147,28 @@ router.get("/activity/chart3", auth, async (req, res) => {
   }
 });
 
+router.post("/user/forgot-password", async (req, res) => {
+  try {
+    const newUser = new User();
+    const result = await newUser.forgotPassword(req.body);
+    res.status(result.statusCode).json(result);
+  } catch (error) {
+    console.error("Error fetching data from MongoDB", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/user/reset-password/:token", async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  try {
+    const newUser = new User();
+    const result = await newUser.resetPassword(token, password);
+    res.status(result.statusCode).json(result);
+  } catch (error) {
+    console.error("Error fetching data from MongoDB", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = router;

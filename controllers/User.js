@@ -1,6 +1,7 @@
 const MongosConnect = require("../database/Mongo.connect");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 class User {
   async getUser(userId, body) {
@@ -26,10 +27,13 @@ class User {
   }
 
   async loginUser(body) {
+    console.log(body);
     const connect = new MongosConnect();
     const userActive = {};
     if (body.email) userActive.email = body.email;
     if (body.password) userActive.is_active = true;
+
+    console.log(userActive);
 
     const data = await connect.queryData(userActive);
     const password = data.map((pw) => pw.password);
@@ -52,7 +56,7 @@ class User {
       };
     }
     const email = body.email;
-    // console.log(email);
+    console.log(email);
     function createJwt(email) {
       const jwtSecretKey = process.env.JWT_SECRET_KEY;
       const token = jwt.sign({ id: email }, jwtSecretKey, {
@@ -85,7 +89,7 @@ class User {
     const hashedPassword = bcrypt.hashSync(body.password, saltRounds);
 
     const newUser = {
-      email: toLowerCase(body.email),
+      email: body.email.toLowerCase(),
       name: body.name,
       password: hashedPassword,
       age: parseInt(body.age) || undefined,
@@ -169,6 +173,90 @@ class User {
       devMessage: "Success",
     };
   }
-}
 
+  async forgotPassword(body) {
+    console.log(body.email.toLowerCase());
+    const connect = new MongosConnect();
+    const existingUser = await connect.queryData({
+      email: body.email.toLowerCase(),
+    });
+    for (const user of existingUser) {
+      if (user.email === body.email.toLowerCase()) {
+        const token = jwt.sign(
+          { id: body.email.toLowerCase() },
+          "jwt_secret_key",
+          {
+            expiresIn: "1d",
+          }
+        );
+        let transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: "thorexercisetracking@gmail.com",
+            pass: "unsz sazy tzio tbfs",
+          },
+        });
+
+        let mailOptions = {
+          from: "thorexercisetracking@gmail.com",
+          to: body.email,
+          subject: "Reset Password Link",
+          text: `http://localhost:5173/reset_password/${token}`,
+        };
+        transporter.sendMail(mailOptions, (err, info) => {
+          console.log(err);
+          console.log(info);
+          if (err) {
+            console.log(`ER ${err}`);
+          } else {
+            return res.send({ Status: "Success" });
+          }
+        });
+      }
+    }
+    return {
+      data: {},
+      statusCode: 200,
+      devMessage: "Success",
+    };
+  }
+
+  async resetPassword(token, password) {
+    const connect = new MongosConnect();
+    let email = "";
+    if (token) {
+      console.log(token);
+      jwt.verify(token, "jwt_secret_key", (err, decoded) => {
+        email = decoded.id;
+        if (err) {
+          return {
+            statusCode: 404,
+            devMessage: "Error with token",
+          };
+        }
+      });
+    }
+
+    const updatedField = {};
+    if (password) {
+      const saltRounds = 12;
+      const hashedPassword = bcrypt.hashSync(password, saltRounds);
+      updatedField.password = hashedPassword;
+
+      const data = await connect.updateOne(
+        {
+          email: email,
+        },
+        {
+          $set: updatedField,
+        }
+      );
+      return {
+        data: data,
+        statusCode: 200,
+        devMessage: "Success",
+      };
+    }
+  }
+}
 module.exports = User;
