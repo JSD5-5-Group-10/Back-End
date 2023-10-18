@@ -1,5 +1,4 @@
 const express = require("express");
-const { addACtivityController } = require("../controllers/ActivityControllers");
 const router = express.Router();
 const User = require("../controllers/User");
 const Activity = require("../controllers/Activity");
@@ -7,17 +6,9 @@ const auth = require("../middleware/auth");
 
 router.get("/user", auth, async (req, res) => {
   const userId = req.user.id;
-  // const userId = req.body.email
-  const id = req.params.id;
-  console.log(id);
   try {
     const user = new User();
     const result = await user.getUser(userId, req.body);
-    console.log(
-      result.data.map((item) => {
-        return item.activity;
-      })
-    );
     res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
@@ -48,6 +39,7 @@ router.post("/user/register", async (req, res) => {
 });
 
 router.put("/user/update", auth, async (req, res) => {
+  console.log(req.body);
   const userId = req.user.id;
   try {
     const editUser = new User();
@@ -76,7 +68,7 @@ router.get("/activity", auth, async (req, res) => {
   try {
     const user = new Activity();
     const result = await user.getActivity({ email: userId });
-    res.json(result);
+    res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
     res.status(500).json({ error: "Internal server error" });
@@ -88,7 +80,7 @@ router.post("/activity/add", auth, async (req, res) => {
   try {
     const user = new Activity();
     const result = await user.addActivity(userId, req.body);
-    res.json(result);
+    res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
     res.status(500).json({ error: "Internal server error" });
@@ -100,7 +92,7 @@ router.put("/activity/update", auth, async (req, res) => {
   try {
     const user = new Activity();
     const result = await user.editActivity(userId, req.body);
-    res.json(result);
+    res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
     res.status(500).json({ error: "Internal server error" });
@@ -112,7 +104,7 @@ router.delete("/activity/delete", auth, async (req, res) => {
   try {
     const user = new Activity();
     const result = await user.delActivity(userId, req.body);
-    res.json(result);
+    res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
     res.status(500).json({ error: "Internal server error" });
@@ -121,13 +113,10 @@ router.delete("/activity/delete", auth, async (req, res) => {
 
 router.get("/activity/chart", auth, async (req, res) => {
   const userId = req.user.id;
-  // const userId = req.body;
-  // console.log(userId)
   try {
     const user = new Activity();
     const result = await user.groupActivity({ email: userId });
-    // const result = await user.groupActivity(userId);
-    res.json(result);
+    res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
     res.status(500).json({ error: "Internal server error" });
@@ -136,13 +125,10 @@ router.get("/activity/chart", auth, async (req, res) => {
 
 router.get("/activity/chart2", auth, async (req, res) => {
   const userId = req.user.id;
-  // const userId = req.body;
-  // console.log(userId)
   try {
     const user = new Activity();
     const result = await user.showKgcal({ email: userId });
-    // const result = await user.groupActivity(userId);
-    res.json(result);
+    res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
     res.status(500).json({ error: "Internal server error" });
@@ -151,13 +137,10 @@ router.get("/activity/chart2", auth, async (req, res) => {
 
 router.get("/activity/chart3", auth, async (req, res) => {
   const userId = req.user.id;
-  // const userId = req.body;
-  // console.log(userId)
   try {
     const user = new Activity();
     const result = await user.auyDash({ email: userId });
-    // const result = await user.groupActivity(userId);
-    res.json(result);
+    res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);
     res.status(500).json({ error: "Internal server error" });

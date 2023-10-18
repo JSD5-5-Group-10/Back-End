@@ -1,10 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const auth = (req, res, next) => {
-  // console.log(req)
   const authHeader = req.headers.authorization;
-  // const authHeader = req.params.id;
-  console.log(authHeader)
   const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
