@@ -26,13 +26,10 @@ class User {
   }
 
   async loginUser(body) {
-    console.log(body);
     const connect = new MongosConnect();
     const userActive = {};
     if (body.email) userActive.email = body.email;
     if (body.password) userActive.is_active = true;
-
-    console.log(userActive);
 
     const data = await connect.queryData(userActive);
     const password = data.map((pw) => pw.password);
@@ -55,7 +52,7 @@ class User {
       };
     }
     const email = body.email;
-    console.log(email);
+    // console.log(email);
     function createJwt(email) {
       const jwtSecretKey = process.env.JWT_SECRET_KEY;
       const token = jwt.sign({ id: email }, jwtSecretKey, {
