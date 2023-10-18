@@ -127,9 +127,82 @@ class Activity {
       devMessage: "Success",
     };
   }
+
+  async showKgcal(userId) {
+    const connect = new MongosConnect();
+    const pipeline = [
+      {
+        $match: userId,
+      },
+      {
+        $unwind: "$activity",
+      },
+      {
+        $match: {
+          "activity.act_type": {
+            $in: ["Run", "Yoga", "Training", "KitaMuaythai", "Aerobics"],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$activity.act_type",
+          kgBurned: {
+            $sum: "$activity.kg_burn",
+          },
+          Time: {
+            $sum: "$activity.duration",
+          },
+        },
+      },
+    ];
+
+    const data = await connect.groupBy(pipeline);
+    return {
+      data: data,
+      devMessage: "Success",
+    };
+  }
+
   async getJSD(userId) {
     const connect = new MongosConnect();
     const data = await connect.queryActivity(userId);
+    return {
+      data: data,
+      devMessage: "Success",
+    };
+  }
+  //auydash
+  async auyDash(userId) {
+    const connect = new MongosConnect();
+    const pipeline = [
+      {
+        $match: userId,
+      },
+      {
+        $unwind: "$activity",
+      },
+      {
+        $match: {
+          "activity.act_type": {
+            $in: ["Run", "Yoga", "Training", "KitaMuaythai", "Aerobics"],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$activity.act_type",
+          kgBurned: {
+            $sum: "$activity.kg_burn",
+          },
+          Time: {
+            $sum: "$activity.duration",
+          },
+        },
+      },
+    ];
+
+    const data = await connect.groupBy(pipeline);
     return {
       data: data,
       devMessage: "Success",
