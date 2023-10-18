@@ -3,8 +3,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 class User {
-  async getUser(userId,body) {
-    console.log(userId)
+  async getUser(userId, body) {
+    console.log(userId);
     const connect = new MongosConnect();
     const userActive = {};
     if (userId) userActive.email = userId;
@@ -26,13 +26,13 @@ class User {
   }
 
   async loginUser(body) {
-    console.log(body)
+    console.log(body);
     const connect = new MongosConnect();
     const userActive = {};
     if (body.email) userActive.email = body.email;
     if (body.password) userActive.is_active = true;
 
-    console.log(userActive)
+    console.log(userActive);
 
     const data = await connect.queryData(userActive);
     const password = data.map((pw) => pw.password);
@@ -54,8 +54,8 @@ class User {
         devMessage: "Invalid email or password",
       };
     }
-    const  email  = body.email;
-    console.log(email)
+    const email = body.email;
+    console.log(email);
     function createJwt(email) {
       const jwtSecretKey = process.env.JWT_SECRET_KEY;
       const token = jwt.sign({ id: email }, jwtSecretKey, {
@@ -76,7 +76,7 @@ class User {
     const connect = new MongosConnect();
     const existingUser = await connect.queryData({ email: body.email });
     for (const user of existingUser) {
-      if (user.email === body.email) {
+      if (user.email === toLowerCase(body.email)) {
         return {
           devMessage: "Email is already in use",
           statusCode: 409,
@@ -88,13 +88,13 @@ class User {
     const hashedPassword = bcrypt.hashSync(body.password, saltRounds);
 
     const newUser = {
-      email: body.email,
+      email: toLowerCase(body.email),
       name: body.name,
       password: hashedPassword,
       age: parseInt(body.age) || undefined,
       image: {
         profile_img: body.profile_img,
-        cover_img: body.profile_img,
+        cover_img: body.cover_img,
       },
       description: body.description || undefined,
       activity: [],
@@ -111,7 +111,8 @@ class User {
     };
   }
 
-  async updateUser(userId,body) {
+  async updateUser(userId, body) {
+    console.log(body);
     const connect = new MongosConnect();
 
     // const hashedPassword = bcrypt.hashSync(body.password, saltRounds);
@@ -146,7 +147,7 @@ class User {
     };
   }
 
-  async disableUser(userId,body) {
+  async disableUser(userId, body) {
     const connect = new MongosConnect();
     if (!/^(true|false)$/.test(body.is_active) || !body) {
       return {

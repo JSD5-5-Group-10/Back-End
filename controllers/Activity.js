@@ -7,9 +7,11 @@ class Activity {
     const data = await connect.queryActivity(userId);
     return {
       data: data,
+      statusCode: 200,
       devMessage: "Success",
     };
   }
+
   async addActivity(userId, body) {
     const connect = new MongosConnect();
     if (
@@ -49,8 +51,19 @@ class Activity {
       devMessage: "Success",
     };
   }
+
   async editActivity(userId, body) {
     const connect = new MongosConnect();
+    if (
+      !/^(Training|KitaMuaythai|Run|Yoga|Aerobics)$/.test(body.act_type) ||
+      !body
+    ) {
+      return {
+        data: {},
+        statusCode: 400,
+        devMessage: "Request is incomplete",
+      };
+    }
     const updateField = {};
     if (body.act_type) updateField["activity.$.act_type"] = body.act_type;
     if (body.act_name) updateField["activity.$.act_name"] = body.act_name;
@@ -60,8 +73,6 @@ class Activity {
     if (body.kg_burn) updateField["activity.$.kg_burn"] = body.kg_burn;
     if (body.cur_weight) updateField["activity.$.cur_weight"] = body.cur_weight;
     updateField["activity.$.updated_at"] = new Date(Date.now()).toISOString();
-
-    console.log("Update Field:", updateField);
 
     const data = await connect.editActivity(
       {
@@ -75,9 +86,11 @@ class Activity {
 
     return {
       data: data,
+      statusCode: 200,
       devMessage: "Success",
     };
   }
+
   async delActivity(userId, body) {
     const connect = new MongosConnect();
     const data = await connect.updateOne(
@@ -91,10 +104,12 @@ class Activity {
       }
     );
     return {
-      data: data,
+      data: {},
+      statusCode: 200,
       devMessage: "Success",
     };
   }
+
   async groupActivity(userId) {
     const connect = new MongosConnect();
     const pipeline = [
@@ -124,6 +139,7 @@ class Activity {
     const data = await connect.groupBy(pipeline);
     return {
       data: data,
+      statusCode: 200,
       devMessage: "Success",
     };
   }
@@ -160,15 +176,7 @@ class Activity {
     const data = await connect.groupBy(pipeline);
     return {
       data: data,
-      devMessage: "Success",
-    };
-  }
-
-  async getJSD(userId) {
-    const connect = new MongosConnect();
-    const data = await connect.queryActivity(userId);
-    return {
-      data: data,
+      statusCode: 200,
       devMessage: "Success",
     };
   }
@@ -205,6 +213,7 @@ class Activity {
     const data = await connect.groupBy(pipeline);
     return {
       data: data,
+      statusCode: 200,
       devMessage: "Success",
     };
   }

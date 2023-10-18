@@ -12,7 +12,6 @@ class MongosConnect {
         .collection("database")
         .find(option)
         .project({ activity: 0 })
-        .limit(10)
         .toArray();
       return data;
     } catch (err) {
@@ -45,7 +44,6 @@ class MongosConnect {
         .collection("database")
         .find(option)
         .project({ activity: 1, _id: 0 })
-        .limit(10)
         .toArray();
       return data;
     } catch (err) {
@@ -98,7 +96,6 @@ class MongosConnect {
       await data.forEach((result) => {
         response.push(result);
       });
-      // console.log(response)
       return response;
     } catch (err) {
       console.log(err);
