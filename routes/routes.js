@@ -1,4 +1,5 @@
 const express = require("express");
+const { addACtivityController } = require("../controllers/ActivityControllers");
 const router = express.Router();
 const User = require("../controllers/User");
 const Activity = require("../controllers/Activity");
@@ -133,13 +134,28 @@ router.get("/activity/chart", auth, async (req, res) => {
   }
 });
 
-router.get("/activity/chart2", auth,async (req, res) => {
+router.get("/activity/chart2", auth, async (req, res) => {
   const userId = req.user.id;
   // const userId = req.body;
   // console.log(userId)
   try {
     const user = new Activity();
     const result = await user.showKgcal({ email: userId });
+    // const result = await user.groupActivity(userId);
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching data from MongoDB", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/activity/chart3", auth, async (req, res) => {
+  const userId = req.user.id;
+  // const userId = req.body;
+  // console.log(userId)
+  try {
+    const user = new Activity();
+    const result = await user.auyDash({ email: userId });
     // const result = await user.groupActivity(userId);
     res.json(result);
   } catch (error) {
