@@ -39,7 +39,6 @@ router.post("/user/register", async (req, res) => {
 });
 
 router.put("/user/update", auth, async (req, res) => {
-  console.log(req.body);
   const userId = req.user.id;
   try {
     const editUser = new User();
@@ -128,18 +127,6 @@ router.get("/activity/chart2", auth, async (req, res) => {
   try {
     const user = new Activity();
     const result = await user.showKgcal({ email: userId });
-    res.status(result.statusCode).json(result);
-  } catch (error) {
-    console.error("Error fetching data from MongoDB", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get("/activity/chart3", auth, async (req, res) => {
-  const userId = req.user.id;
-  try {
-    const user = new Activity();
-    const result = await user.auyDash({ email: userId });
     res.status(result.statusCode).json(result);
   } catch (error) {
     console.error("Error fetching data from MongoDB", error);

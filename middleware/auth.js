@@ -16,7 +16,7 @@ const auth = (req, res, next) => {
     next();
   } catch (err) {
     console.log(err);
-    res.status(400).json({ error: { message: "Invalid token." } });
+    res.status(400).json({ error: { devMessage : "Invalid token." } });
   }
 };
 

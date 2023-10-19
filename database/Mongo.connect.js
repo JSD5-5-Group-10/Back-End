@@ -3,7 +3,6 @@ require("dotenv").config();
 
 class MongosConnect {
   async queryData(option) {
-    // get all user
     const client = new MongoClient(process.env.DATABASE_ENV || "");
     try {
       await client.connect();
@@ -16,7 +15,7 @@ class MongosConnect {
       return data;
     } catch (err) {
       console.log(err);
-      return null;
+      return err;
     } finally {
       client.close();
     }
