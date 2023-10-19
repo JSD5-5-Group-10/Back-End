@@ -93,7 +93,7 @@ class Activity {
 
   async delActivity(userId, body) {
     const connect = new MongosConnect();
-    const data = await connect.updateOne(
+    await connect.updateOne(
       {
         email: userId,
       },
