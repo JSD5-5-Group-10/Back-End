@@ -4,18 +4,16 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
 class User {
-  async getUser(userId, body) {
-    console.log(userId);
+  async getUser(userId) {
     const connect = new MongosConnect();
     const userActive = {};
     if (userId) userActive.email = userId;
     userActive.is_active = true;
-    console.log(userActive);
     const data = await connect.queryData(userActive);
     if (!data || data.length === 0) {
       return {
         data: {},
-        statusCode: 404,
+        statusCode: 409,
         devMessage: "User not found or is not active",
       };
     }
@@ -27,14 +25,11 @@ class User {
   }
 
   async loginUser(body) {
-    console.log(body);
     const connect = new MongosConnect();
+    const email = body.email.toLowerCase();
     const userActive = {};
-    if (body.email) userActive.email = body.email;
+    if (email) userActive.email = email;
     if (body.password) userActive.is_active = true;
-
-    console.log(userActive);
-
     const data = await connect.queryData(userActive);
     const password = data.map((pw) => pw.password);
     const validPassword = bcrypt.compareSync(
@@ -55,8 +50,6 @@ class User {
         devMessage: "Invalid email or password",
       };
     }
-    const email = body.email;
-    console.log(email);
     function createJwt(email) {
       const jwtSecretKey = process.env.JWT_SECRET_KEY;
       const token = jwt.sign({ id: email }, jwtSecretKey, {
@@ -74,15 +67,22 @@ class User {
   }
 
   async registerUser(body) {
+    const email = body.email.toLowerCase();
     const connect = new MongosConnect();
-    const existingUser = await connect.queryData({ email: body.email });
+    const existingUser = await connect.queryData({ email: email });
     for (const user of existingUser) {
-      if (user.email === toLowerCase(body.email)) {
+      if (user.email === email) {
         return {
           devMessage: "Email is already in use",
           statusCode: 409,
         };
       }
+    }
+    if (!body.name) {
+      return {
+        devMessage: "Incomplete information",
+        statusCode: 409,
+      };
     }
 
     const saltRounds = 12;
@@ -113,10 +113,7 @@ class User {
   }
 
   async updateUser(userId, body) {
-    console.log(body);
     const connect = new MongosConnect();
-
-    // const hashedPassword = bcrypt.hashSync(body.password, saltRounds);
     const updatedField = {};
 
     if (body.name) updatedField.name = body.name;
@@ -175,11 +172,25 @@ class User {
   }
 
   async forgotPassword(body) {
-    console.log(body.email.toLowerCase());
     const connect = new MongosConnect();
+    if (!body || !body.email) {
+      return {
+        statusCode: 400,
+        devMessage: "Request is imcomplete",
+      };
+    }
     const existingUser = await connect.queryData({
       email: body.email.toLowerCase(),
+      is_active: true,
     });
+    // if not user or not active get error 404
+    if (existingUser.length === 0) {
+      return {
+        statusCode: 404,
+        devMessage: "User not available",
+      };
+    }
+    let infoSend;
     for (const user of existingUser) {
       if (user.email === body.email.toLowerCase()) {
         const token = jwt.sign(
@@ -201,15 +212,13 @@ class User {
           from: "thorexercisetracking@gmail.com",
           to: body.email,
           subject: "Reset Password Link",
-          text: `http://localhost:5173/reset_password/${token}`,
+          text: `http://localhost:5173/reset-password/${token}`,
         };
         transporter.sendMail(mailOptions, (err, info) => {
-          console.log(err);
-          console.log(info);
           if (err) {
-            console.log(`ER ${err}`);
+            console.log(err);
           } else {
-            return res.send({ Status: "Success" });
+            console.log(info);
           }
         });
       }
@@ -223,40 +232,46 @@ class User {
 
   async resetPassword(token, password) {
     const connect = new MongosConnect();
-    let email = "";
+    if (!password) {
+      return {
+        statusCode: 404,
+        devMessage: "Request is incomplete",
+      };
+    }
+    let email;
     if (token) {
-      console.log(token);
-      jwt.verify(token, "jwt_secret_key", (err, decoded) => {
-        email = decoded.id;
+      email = jwt.verify(token, "jwt_secret_key", (err, decoded) => {
         if (err) {
-          return {
-            statusCode: 404,
-            devMessage: "Error with token",
-          };
+          return "Error";
+        } else {
+          return decoded.id;
         }
       });
     }
-
-    const updatedField = {};
-    if (password) {
-      const saltRounds = 12;
-      const hashedPassword = bcrypt.hashSync(password, saltRounds);
-      updatedField.password = hashedPassword;
-
-      const data = await connect.updateOne(
-        {
-          email: email,
-        },
-        {
-          $set: updatedField,
-        }
-      );
+    if (email === "Error") {
       return {
-        data: data,
-        statusCode: 200,
-        devMessage: "Success",
+        statusCode: 400,
+        devMessage: "Invalid token.",
       };
     }
+
+    const saltRounds = 12;
+    const hashedPassword = bcrypt.hashSync(password, saltRounds);
+    const data = await connect.updateOne(
+      {
+        email: email,
+      },
+      {
+        $set: {
+          password: hashedPassword,
+        },
+      }
+    );
+    return {
+      data: {},
+      statusCode: 200,
+      devMessage: "Success",
+    };
   }
 }
 module.exports = User;
