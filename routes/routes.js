@@ -158,4 +158,15 @@ router.post("/user/reset-password/:token", async (req, res) => {
   }
 });
 
+router.post("/user/loginGoogle", async (req, res) => {
+  try {
+    const newUser = new User();
+    const result = await newUser.loginGoogle(req.body);
+    res.status(result.statusCode).json(result);
+  } catch (error) {
+    console.error("Error fetching data from MongoDB", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = router;
