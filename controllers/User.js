@@ -2,6 +2,7 @@ const MongosConnect = require("../database/Mongo.connect");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const axios = require("axios");
 
 class User {
   async getUser(userId) {
