@@ -70,14 +70,14 @@ class User {
     const email = body.email.toLowerCase();
     const connect = new MongosConnect();
     const existingUser = await connect.queryData({ email: email });
-    for (const user of existingUser) {
-      if (user.email === email) {
-        return {
-          devMessage: "Email is already in use",
-          statusCode: 409,
-        };
-      }
+
+    if (existingUser[0].email === email) {
+      return {
+        devMessage: "Email is already in use",
+        statusCode: 409,
+      };
     }
+
     if (!body.name) {
       return {
         devMessage: "Incomplete information",
@@ -272,6 +272,81 @@ class User {
       statusCode: 200,
       devMessage: "Success",
     };
+  }
+
+  async loginGoogle(body) {
+    try {
+      let data;
+      if (body.token) {
+        const response = await axios.get(
+          `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${body.token}`,
+          {
+            headers: {
+              Authorization: `Bearer ${body.token}`,
+              Accept: "application/json",
+            },
+          }
+        );
+        data = response.data;
+      }
+
+      if (!data || !data.email) {
+        return {
+          statusCode: 400,
+          devMessage: "Invalid or missing user data",
+        };
+      }
+
+      const connect = new MongosConnect();
+      const existingUser = await connect.queryData({ email: data.email });
+      // console.log(data);
+      // console.log(existingUser);
+      if (existingUser.length > 0 && existingUser[0].email === data.email) {
+        // console.log(data.email);
+        return {
+          token: createJwt(data.email),
+          statusCode: 200,
+          devMessage: "Login Success",
+        };
+      }
+      if (existingUser.length === 0) {
+        // console.log(data.email);
+        const newUser = {
+          email: data.email.toLowerCase(),
+          name: data.name,
+          password: undefined,
+          age: parseInt(body.age) || undefined,
+          image: {
+            profile_img: data.picture || undefined,
+            cover_img: undefined,
+          },
+          description: undefined,
+          activity: [],
+          is_active: true,
+          created_at: new Date(Date.now()).toISOString(),
+          updated_at: new Date(Date.now()).toISOString(),
+        };
+        await connect.insertOneData(newUser);
+        return {
+          token: createJwt(data.email),
+          statusCode: 200,
+          devMessage: "Register and Login Success",
+        };
+      }
+    } catch (err) {
+      console.error("Error during loginGoogle:", err);
+      return {
+        statusCode: 500,
+        devMessage: "Internal server error",
+      };
+    }
+    function createJwt(email) {
+      const jwtSecretKey = process.env.JWT_SECRET_KEY;
+      const token = jwt.sign({ id: email }, jwtSecretKey, {
+        expiresIn: "1h",
+      });
+      return token;
+    }
   }
 }
 module.exports = User;
