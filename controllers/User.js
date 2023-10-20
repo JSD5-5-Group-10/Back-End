@@ -72,7 +72,7 @@ class User {
     const connect = new MongosConnect();
     const existingUser = await connect.queryData({ email: email });
 
-    if (existingUser[0].email === email) {
+    if (existingUser.length > 0 && existingUser[0].email === email) {
       return {
         devMessage: "Email is already in use",
         statusCode: 409,
@@ -90,7 +90,7 @@ class User {
     const hashedPassword = bcrypt.hashSync(body.password, saltRounds);
 
     const newUser = {
-      email: body.email.toLowerCase(),
+      email: email,
       name: body.name,
       password: hashedPassword,
       age: parseInt(body.age) || undefined,
