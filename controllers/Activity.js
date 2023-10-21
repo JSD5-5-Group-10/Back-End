@@ -25,7 +25,7 @@ class Activity {
     ) {
       return {
         data: {},
-        statusCode: 400,
+        statusCode: 404,
         devMessage: "Request is incomplete",
       };
     }
@@ -65,7 +65,7 @@ class Activity {
     ) {
       return {
         data: {},
-        statusCode: 400,
+        statusCode: 404,
         devMessage: "Request is incomplete",
       };
     }
@@ -101,7 +101,7 @@ class Activity {
     if (!body || !body.act_id) {
       return {
         data: {},
-        statusCode: 400,
+        statusCode: 404,
         devMessage: "Request is incomplete",
       };
     }

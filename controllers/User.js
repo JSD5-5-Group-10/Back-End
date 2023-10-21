@@ -82,7 +82,7 @@ class User {
     if (!body.name) {
       return {
         devMessage: "Incomplete information",
-        statusCode: 409,
+        statusCode: 404,
       };
     }
 
@@ -151,7 +151,7 @@ class User {
     if (!/^(true|false)$/.test(body.is_active) || !body) {
       return {
         data: {},
-        statusCode: 400,
+        statusCode: 404,
         devMessage: "Request is incomplete",
       };
     }
