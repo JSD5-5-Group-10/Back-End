@@ -114,14 +114,19 @@ class Activity {
         act_id: body.act_id,
       }
     );
-    const existingID = data.map((e) => e.activity[0]);
-    for (const id of existingID) {
-      if (body.act_id !== id.act_id) {
-        return {
-          devMessage: "ID not available in database system",
-          statusCode: 409,
-        };
+    let matchFound = false;
+    for (const id of data[0].activity) {
+      console.log(id.act_id);
+      if (id.act_id === body.act_id) {
+        matchFound = true;
+        break;
       }
+    }
+    if (!matchFound) {
+      return {
+        devMessage: "ID not available in database system",
+        statusCode: 409,
+      };
     }
     await connect.updateOne(
       {
