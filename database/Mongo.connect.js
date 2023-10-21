@@ -20,6 +20,7 @@ class MongosConnect {
       client.close();
     }
   }
+
   async insertOneData(option) {
     const client = new MongoClient(process.env.DATABASE_ENV || "");
     try {
@@ -34,6 +35,7 @@ class MongosConnect {
       client.close();
     }
   }
+
   async queryActivity(option) {
     const client = new MongoClient(process.env.DATABASE_ENV || "");
     try {
@@ -52,6 +54,7 @@ class MongosConnect {
       client.close();
     }
   }
+
   async updateOne(filter, option) {
     // email selec user add activity and delete
     const client = new MongoClient(process.env.DATABASE_ENV || "");
@@ -69,6 +72,7 @@ class MongosConnect {
       client.close();
     }
   }
+
   async editActivity(filter, options) {
     const client = new MongoClient(process.env.DATABASE_ENV || "");
     try {
@@ -85,6 +89,7 @@ class MongosConnect {
       client.close();
     }
   }
+
   async groupBy(option) {
     const client = new MongoClient(process.env.DATABASE_ENV || "");
     try {
