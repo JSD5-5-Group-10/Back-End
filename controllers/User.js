@@ -258,7 +258,7 @@ class User {
 
     const saltRounds = 12;
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
-    const data = await connect.updateOne(
+    data = await connect.updateOne(
       {
         email: email,
       },
@@ -301,7 +301,15 @@ class User {
       const connect = new MongosConnect();
       const existingUser = await connect.queryData({ email: data.email });
       // console.log(data);
-      // console.log(existingUser);
+      // console.log(existingUser[0].is_active);
+      if (existingUser[0].is_active === false) {
+        return {
+          data: {},
+          statusCode: 409,
+          devMessage: "User not found or is not active",
+        };
+      }
+
       if (existingUser.length > 0 && existingUser[0].email === data.email) {
         // console.log(data.email);
         return {
