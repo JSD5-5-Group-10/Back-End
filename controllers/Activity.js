@@ -29,6 +29,18 @@ class Activity {
         devMessage: "Request is incomplete",
       };
     }
+    if (
+      typeof body.duration !== "number" ||
+      typeof body.cal_burn !== "number" ||
+      typeof body.kg_burn !== "number" ||
+      typeof body.cur_weight !== "number"
+    ) {
+      return {
+        data: {},
+        statusCode: 404,
+        devMessage: "Request is incomplete",
+      };
+    }
     const newActivity = {
       act_id: uuidv4(),
       act_type: body.act_type,
@@ -107,16 +119,13 @@ class Activity {
     }
     // find if on database
     const data = await connect.queryActivity(
-      {
-        email: userId,
-      },
-      {
-        act_id: body.act_id,
-      }
+      { email: userId },
+      { activity: { $elemMatch: { act_id: body.act_id } } }
     );
+    // console.log(data);
     let matchFound = false;
     for (const id of data[0].activity) {
-      console.log(id.act_id);
+      // console.log(id.act_id);
       if (id.act_id === body.act_id) {
         matchFound = true;
         break;
