@@ -276,8 +276,9 @@ class User {
   }
 
   async loginGoogle(body) {
+    // console.log(body);
+    let data;
     try {
-      let data;
       if (body.token) {
         const response = await axios.get(
           `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${body.token}`,
@@ -289,6 +290,7 @@ class User {
           }
         );
         data = response.data;
+        // console.log(response.data);
       }
 
       if (!data || !data.email) {
@@ -301,8 +303,13 @@ class User {
       const connect = new MongosConnect();
       const existingUser = await connect.queryData({ email: data.email });
       // console.log(data);
+      // console.log(existingUser);
       // console.log(existingUser[0].is_active);
-      if (existingUser[0].is_active === false) {
+      if (
+        existingUser &&
+        existingUser.length > 0 &&
+        existingUser[0].is_active === false
+      ) {
         return {
           data: {},
           statusCode: 409,
