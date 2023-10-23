@@ -213,7 +213,7 @@ class User {
           from: "thorexercisetracking@gmail.com",
           to: body.email,
           subject: "Reset Password Link",
-          text: `http://localhost:5173/reset-password/${token}`,
+          text: `https://fitbot-fityourgoal.vercel.app/reset-password/${token}`,
         };
         transporter.sendMail(mailOptions, (err, info) => {
           if (err) {
