@@ -81,6 +81,18 @@ class Activity {
         devMessage: "Request is incomplete",
       };
     }
+    if (
+      typeof body.duration !== "number" ||
+      typeof body.cal_burn !== "number" ||
+      typeof body.kg_burn !== "number" ||
+      typeof body.cur_weight !== "number"
+    ) {
+      return {
+        data: {},
+        statusCode: 404,
+        devMessage: "Request is incomplete",
+      };
+    }
     const updateField = {};
     if (body.act_type) updateField["activity.$.act_type"] = body.act_type;
     if (body.act_name) updateField["activity.$.act_name"] = body.act_name;
