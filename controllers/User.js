@@ -232,7 +232,6 @@ class User {
   }
 
   async resetPassword(token, password) {
-    // console.log(token);
     // console.log(password);
     const connect = new MongosConnect();
     if (!password) {
