@@ -148,7 +148,6 @@ router.post("/user/forgot-password", async (req, res) => {
 router.post("/user/reset-password/:token", async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
-  // console.log(password);
   try {
     const newUser = new User();
     const result = await newUser.resetPassword(token, password);
