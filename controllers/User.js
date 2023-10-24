@@ -232,6 +232,8 @@ class User {
   }
 
   async resetPassword(token, password) {
+    // console.log(token);
+    // console.log(password);
     const connect = new MongosConnect();
     if (!password) {
       return {
@@ -255,10 +257,11 @@ class User {
         devMessage: "Invalid token.",
       };
     }
-
+    // console.log(email);
     const saltRounds = 12;
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
-    data = await connect.updateOne(
+    // console.log(hashedPassword);
+    const data = await connect.updateOne(
       {
         email: email,
       },
@@ -269,7 +272,7 @@ class User {
       }
     );
     return {
-      data: {},
+      data: data,
       statusCode: 200,
       devMessage: "Success",
     };
